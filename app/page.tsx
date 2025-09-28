@@ -6,12 +6,12 @@ import { NewsletterSection } from "@/components/newsletter-section"
 
 export default function HomePage() {
   return (
-    <>
+    <div className="w-full">
       <HeroSection />
       <CategoriesSection />
       <FeaturedProducts />
       <TestimonialsSection />
       <NewsletterSection />
-    </>
+    </div>
   )
 }

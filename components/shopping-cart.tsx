@@ -116,7 +116,7 @@ export function ShoppingCart() {
 
   if (cartItems.length === 0) {
     return (
-      <div className="container px-4 py-16">
+      <div className="w-full px-4 sm:px-6 lg:px-8  py-16">
         <div className="max-w-md mx-auto text-center space-y-6">
           <div className="w-24 h-24 mx-auto bg-muted rounded-full flex items-center justify-center">
             <ShoppingBag className="w-12 h-12 text-muted-foreground" />

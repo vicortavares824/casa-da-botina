@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 export function NewsletterSection() {
   return (
     <section className="py-20 bg-primary/5">
-      <div className="container px-4">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
         <Card className="max-w-4xl mx-auto">
           <CardContent className="p-8 lg:p-12">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">

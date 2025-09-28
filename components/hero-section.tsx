@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge"
 export function HeroSection() {
   return (
     <section className="relative bg-gradient-to-br from-primary/5 to-secondary/5 py-20 lg:py-32">
-      <div className="container px-4">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Conteúdo */}
           <div className="space-y-8">

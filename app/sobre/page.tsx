@@ -18,7 +18,7 @@ export default function SobrePage() {
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-1 lg:gap-16">
         <div className="flex flex-col justify-center space-y-6">
           <p className="text-lg leading-relaxed">
-            Fundada em 1985 na pequena cidade de São Francisco, a <strong>Casa da Botina</strong> nasceu de uma paixão familiar pelo universo country e pela arte da sapataria. O que começou como uma modesta oficina de consertos, rapidamente se transformou em um ponto de referência para todos que buscavam produtos de couro autênticos e de alta qualidade.
+            Fundada em 1985 na pequena cidade de Vargem Grande do Sul, SP, a <strong>Casa da Botina</strong> nasceu de uma paixão familiar pelo universo country e pela arte da sapataria. O que começou como uma modesta oficina de consertos, rapidamente se transformou em um ponto de referência para todos que buscavam produtos de couro autênticos e de alta qualidade.
           </p>
           <p className="text-lg leading-relaxed">
             Nossas botas, cintos e acessórios são mais do que simples itens de vestuário; são peças que carregam a herança do campo, a robustez do trabalho e a elegância do estilo country. Cada produto é cuidadosamente selecionado, priorizando o conforto, a durabilidade e o design que só a verdadeira tradição pode oferecer.
@@ -83,7 +83,7 @@ export default function SobrePage() {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">
-                Orgulho de nossas origens em São Francisco e da nossa comunidade.
+                Orgulho de nossas origens em Vargem Grande do Sul, SP e da nossa comunidade.
               </p>
             </CardContent>
           </Card>
