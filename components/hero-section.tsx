@@ -56,7 +56,7 @@ export function HeroSection() {
           <div className="relative">
             <div className="aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-primary/10 to-secondary/10">
               <img
-                src="/placeholder-bnuw0.png"
+                src="/placeholder-bnuw0.jpg"
                 alt="Botas Country Artesanais Casa da Botina"
                 className="w-full h-full object-cover"
               />

@@ -1,52 +1,7 @@
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 
-const categories = [
-  {
-    name: "Botas Masculinas",
-    description: "Resistência e estilo para o homem do campo",
-    image: "/botas-masculinas.jpg",
-    href: "/produtos/botas-masculinas",
-    featured: true,
-  },
-  {
-    name: "Botas Femininas",
-    description: "Elegância e conforto para mulheres autênticas",
-    image: "/botas-femininas.jpg",
-    href: "/produtos/botas-femininas",
-    featured: true,
-  },
-  {
-    name: "Chapéus",
-    description: "Proteção e tradição sertaneja",
-    image: "/chapeus-country.jpg",
-    href: "/produtos/chapeus",
-  },
-  {
-    name: "Cintos",
-    description: "Acessórios de couro artesanal",
-    image: "/cintos-couro.jpg",
-    href: "/produtos/cintos",
-  },
-  {
-    name: "Carteiras",
-    description: "Praticidade com estilo country",
-    image: "/carteiras-couro.jpg",
-    href: "/produtos/carteiras",
-  },
-  {
-    name: "Bolsas",
-    description: "Elegância feminina sertaneja",
-    image: "/bolsas-country.jpg",
-    href: "/produtos/bolsas",
-  },
-  {
-    name: "Fivelas",
-    description: "Detalhes únicos para seus cintos",
-    image: "/fivelas-country.jpg",
-    href: "/produtos/fivelas",
-  },
-]
+import { categories } from "@/data/site-data"
 
 export function CategoriesSection() {
   return (
@@ -74,6 +29,7 @@ export function CategoriesSection() {
                       alt={category.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
+                    
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
                       <h3 className="text-xl font-bold mb-2">{category.name}</h3>

@@ -1,29 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Star } from "lucide-react"
 
-const testimonials = [
-  {
-    name: "João Silva",
-    location: "Uberlândia, MG",
-    rating: 5,
-    comment: "Comprei uma bota há 3 anos e ainda está como nova. Qualidade excepcional e atendimento nota 10!",
-    avatar: "/placeholder-kyyin.png",
-  },
-  {
-    name: "Maria Santos",
-    location: "Goiânia, GO",
-    rating: 5,
-    comment: "As botas femininas são lindas e super confortáveis. Uso no trabalho e em festas country. Recomendo!",
-    avatar: "/placeholder-k0nt4.png",
-  },
-  {
-    name: "Carlos Pereira",
-    location: "Ribeirão Preto, SP",
-    rating: 5,
-    comment: "Tradição e qualidade em cada produto. Sou cliente há anos e sempre fico satisfeito com as compras.",
-    avatar: "/placeholder-w11w2.png",
-  },
-]
+import { testimonials } from "@/data/site-data"
 
 export function TestimonialsSection() {
   return (

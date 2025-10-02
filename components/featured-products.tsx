@@ -4,78 +4,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Star, Heart } from "lucide-react"
 
-const featuredProducts = [
-  {
-    id: 1,
-    name: "Bota Country Masculina Tradicional",
-    price: 299.9,
-    originalPrice: 399.9,
-    image: "/placeholder-1a88n.png",
-    rating: 4.8,
-    reviews: 124,
-    badge: "Mais Vendida",
-  },
-  {
-    id: 2,
-    name: "Bota Feminina Country Elegante",
-    price: 279.9,
-    originalPrice: null,
-    image: "/placeholder-ck8qt.png",
-    rating: 4.9,
-    reviews: 89,
-    badge: "Novidade",
-  },
-  {
-    id: 13,
-    name: "Bota Feminina Country Texana",
-    price: 329.9,
-    originalPrice: 399.9,
-    image: "/produto-bota-feminina-texana.jpg",
-    rating: 4.8,
-    reviews: 67,
-    badge: "Promoção",
-  },
-  {
-    id: 17,
-    name: "Bota Infantil Country Menino",
-    price: 179.9,
-    originalPrice: null,
-    image: "/produto-bota-infantil-menino.jpg",
-    rating: 4.8,
-    reviews: 56,
-    badge: "Novidade",
-  },
-  {
-    id: 3,
-    name: "Chapéu Sertanejo Palha Natural",
-    price: 89.9,
-    originalPrice: 119.9,
-    image: "/produto-chapeu-1.jpg",
-    rating: 4.7,
-    reviews: 67,
-    badge: "Promoção",
-  },
-  {
-    id: 4,
-    name: "Cinto Country Couro Legítimo",
-    price: 149.9,
-    originalPrice: null,
-    image: "/placeholder-jos4p.png",
-    rating: 4.6,
-    reviews: 45,
-    badge: null,
-  },
-  {
-    id: 8,
-    name: "Chapéu Cowboy Couro Legítimo",
-    price: 199.9,
-    originalPrice: 249.9,
-    image: "/produto-chapeu-couro.jpg",
-    rating: 4.9,
-    reviews: 28,
-    badge: "Novidade",
-  },
-]
+import { featuredProducts } from "@/data/site-data"
 
 export function FeaturedProducts() {
   return (
@@ -94,79 +23,82 @@ export function FeaturedProducts() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featuredProducts.map((product) => (
-            <Card key={product.id} className="group overflow-hidden hover:shadow-lg transition-all duration-300">
-              <CardContent className="p-0">
-                <div className="relative aspect-[3/4] overflow-hidden">
-                  <img
-                    src={product.image || "/placeholder.svg"}
-                    alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  {product.badge && (
-                    <Badge
-                      className="absolute top-3 left-3"
-                      variant={
-                        product.badge === "Promoção"
-                          ? "destructive"
-                          : product.badge === "Novidade"
-                            ? "secondary"
-                            : "default"
-                      }
+          {featuredProducts.map((product) => {
+            if (!product) return null
+            return (
+              <Card key={product.id} className="group overflow-hidden hover:shadow-lg transition-all duration-300">
+                <CardContent className="p-0">
+                  <div className="relative aspect-[3/4] overflow-hidden">
+                    <img
+                      src={product.image || "/placeholder.svg"}
+                      alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    {product.badge && (
+                      <Badge
+                        className="absolute top-3 left-3"
+                        variant={
+                          product.badge === "Promoção"
+                            ? "destructive"
+                            : product.badge === "Novidade"
+                              ? "secondary"
+                              : "default"
+                        }
+                      >
+                        {product.badge}
+                      </Badge>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute top-3 right-3 bg-background/80 hover:bg-background"
                     >
-                      {product.badge}
-                    </Badge>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-3 right-3 bg-background/80 hover:bg-background"
-                  >
-                    <Heart className="h-4 w-4" />
-                  </Button>
-                </div>
+                      <Heart className="h-4 w-4" />
+                    </Button>
+                  </div>
 
-                <div className="p-4 space-y-3">
-                  <div className="space-y-1">
-                    <h3 className="font-medium text-sm leading-tight line-clamp-2">{product.name}</h3>
-                    <div className="flex items-center space-x-1">
-                      <div className="flex items-center">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`h-3 w-3 ${
-                              i < Math.floor(product.rating)
-                                ? "fill-yellow-400 text-yellow-400"
-                                : "text-muted-foreground"
-                            }`}
-                          />
-                        ))}
+                  <div className="p-4 space-y-3">
+                    <div className="space-y-1">
+                      <h3 className="font-medium text-sm leading-tight line-clamp-2">{product.name}</h3>
+                      <div className="flex items-center space-x-1">
+                        <div className="flex items-center">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`h-3 w-3 ${
+                                i < Math.floor(product.rating)
+                                  ? "fill-yellow-400 text-yellow-400"
+                                  : "text-muted-foreground"
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-xs text-muted-foreground">({product.reviews})</span>
                       </div>
-                      <span className="text-xs text-muted-foreground">({product.reviews})</span>
                     </div>
-                  </div>
 
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-lg font-bold text-primary">
-                        R$ {product.price.toFixed(2).replace(".", ",")}
-                      </span>
-                      {product.originalPrice && (
-                        <span className="text-sm text-muted-foreground line-through">
-                          R$ {product.originalPrice.toFixed(2).replace(".", ",")}
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-lg font-bold text-primary">
+                          R$ {product.price.toFixed(2).replace(".", ",")}
                         </span>
-                      )}
+                        {product.originalPrice && (
+                          <span className="text-sm text-muted-foreground line-through">
+                            R$ {product.originalPrice.toFixed(2).replace(".", ",")}
+                          </span>
+                        )}
+                      </div>
+                      <Link href={`/produto/${product.id}`}>
+                        <Button className="w-full" size="sm">
+                          Ver Produto
+                        </Button>
+                      </Link>
                     </div>
-                    <Link href={`/produto/${product.id}`}>
-                      <Button className="w-full" size="sm">
-                        Ver Produto
-                      </Button>
-                    </Link>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            )
+          })}
         </div>
       </div>
     </section>
