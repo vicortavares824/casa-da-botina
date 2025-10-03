@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -21,6 +21,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react"
+import { fetchProductById } from "@/lib/data"
 
 // Mock data do produto
 const productData = {
@@ -93,13 +94,26 @@ interface ProductDetailProps {
 }
 
 export function ProductDetail({ productId }: ProductDetailProps) {
+  const [product, setProduct] = useState<any | null>(null)
+  const [loading, setLoading] = useState(true)
   const [selectedImage, setSelectedImage] = useState(0)
   const [selectedSize, setSelectedSize] = useState("")
   const [selectedColor, setSelectedColor] = useState("")
   const [quantity, setQuantity] = useState(1)
   const [isWishlisted, setIsWishlisted] = useState(false)
 
-  const product = productData // Em um app real, buscar por productId
+  useEffect(() => {
+    async function loadProduct() {
+      setLoading(true)
+      const data = await fetchProductById(productId)
+      setProduct(data)
+      setLoading(false)
+    }
+    loadProduct()
+  }, [productId])
+  console.log("Product data:", product);
+  if (loading) return <div className="p-8 text-center">Carregando...</div>
+  if (!product) return <div className="p-8 text-center text-red-500">Produto não encontrado.</div>
 
   const handleAddToCart = () => {
     if (!selectedSize || !selectedColor) {
@@ -116,12 +130,17 @@ export function ProductDetail({ productId }: ProductDetailProps) {
   }
 
   const nextImage = () => {
-    setSelectedImage((prev) => (prev + 1) % product.images.length)
+    if (Array.isArray(product.images) && product.images.length > 0) {
+      setSelectedImage((prev) => (prev + 1) % product.images.length)
+    }
   }
 
   const prevImage = () => {
-    setSelectedImage((prev) => (prev - 1 + product.images.length) % product.images.length)
+    if (Array.isArray(product.images) && product.images.length > 0) {
+      setSelectedImage((prev) => (prev - 1 + product.images.length) % product.images.length)
+    }
   }
+  
 
   return (
     <div className="container px-4 py-8">
@@ -144,7 +163,11 @@ export function ProductDetail({ productId }: ProductDetailProps) {
           {/* Imagem Principal */}
           <div className="relative aspect-square rounded-lg overflow-hidden bg-muted">
             <img
-              src={product.images[selectedImage] || "/placeholder.svg"}
+              src={
+                Array.isArray(product.images) && product.images[selectedImage]
+                  ? product.images[selectedImage]
+                  : "/placeholder.svg"
+              }
               alt={product.name}
               className="w-full h-full object-cover"
             />
@@ -168,7 +191,7 @@ export function ProductDetail({ productId }: ProductDetailProps) {
 
           {/* Miniaturas */}
           <div className="grid grid-cols-4 gap-2">
-            {product.images.map((image, index) => (
+            {product.images && Array.isArray(product.images) && product.images.map((image: string, index: number) => (
               <button
                 key={index}
                 onClick={() => setSelectedImage(index)}
@@ -242,17 +265,21 @@ export function ProductDetail({ productId }: ProductDetailProps) {
             <div className="space-y-2">
               <label className="text-sm font-medium">Cor: {selectedColor}</label>
               <div className="flex space-x-2">
-                {product.colors.map((color) => (
-                  <button
-                    key={color.name}
-                    onClick={() => setSelectedColor(color.name)}
-                    className={`w-8 h-8 rounded-full border-2 transition-colors ${
-                      selectedColor === color.name ? "border-primary" : "border-muted"
-                    }`}
-                    style={{ backgroundColor: color.hex }}
-                    title={color.name}
-                  />
-                ))}
+                {product.colors && Array.isArray(product.colors) && product.colors.map((color: any, idx: number) => {
+                  const colorName = typeof color === "string" ? color : color.name;
+                  const colorHex = typeof color === "string" ? "#000" : color.hex || "#000";
+                  return (
+                    <button
+                      key={colorName}
+                      onClick={() => setSelectedColor(colorName)}
+                      className={`w-8 h-8 rounded-full border-2 transition-colors ${
+                        selectedColor === colorName ? "border-primary" : "border-muted"
+                      }`}
+                      style={{ backgroundColor: colorHex }}
+                      title={colorName}
+                    />
+                  );
+                })}
               </div>
             </div>
 
@@ -270,7 +297,7 @@ export function ProductDetail({ productId }: ProductDetailProps) {
                   <SelectValue placeholder="Selecione o tamanho" />
                 </SelectTrigger>
                 <SelectContent>
-                  {product.sizes.map((size) => (
+                  {product.sizes && Array.isArray(product.sizes) && product.sizes.map((size: string, idx: number) => (
                     <SelectItem key={size} value={size}>
                       {size}
                     </SelectItem>
@@ -355,8 +382,8 @@ export function ProductDetail({ productId }: ProductDetailProps) {
                 <div>
                   <h3 className="font-semibold mb-3">Características:</h3>
                   <ul className="space-y-2">
-                    {product.features.map((feature, index) => (
-                      <li key={index} className="flex items-center space-x-2 text-sm">
+                    {product.features && Array.isArray(product.features) && product.features.map((feature: string, idx: number) => (
+                      <li key={idx} className="flex items-center space-x-2 text-sm">
                         <div className="w-1.5 h-1.5 bg-primary rounded-full" />
                         <span>{feature}</span>
                       </li>
@@ -372,10 +399,10 @@ export function ProductDetail({ productId }: ProductDetailProps) {
           <Card>
             <CardContent className="p-6">
               <div className="space-y-4">
-                {Object.entries(product.specifications).map(([key, value]) => (
-                  <div key={key} className="flex justify-between py-2 border-b border-border last:border-0">
+                {Object.entries(product.specifications || {}).map(([key, value], idx) => (
+                  <div key={idx} className="flex justify-between py-2 border-b border-border last:border-0">
                     <span className="font-medium">{key}:</span>
-                    <span className="text-muted-foreground">{value}</span>
+                    <span className="text-muted-foreground">{String(value)}</span>
                   </div>
                 ))}
               </div>

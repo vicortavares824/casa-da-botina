@@ -58,17 +58,9 @@ export function Header() {
                 <Link href="/produtos/chapeus">Chapéus</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/produtos/cintos">Cintos</Link>
+                <Link href="/produtos/bones">Bonés</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/produtos/carteiras">Carteiras</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/produtos/bolsas">Bolsas</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/produtos/fivelas">Fivelas</Link>
-              </DropdownMenuItem>
+            
             </DropdownMenuContent>
           </DropdownMenu>
 

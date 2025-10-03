@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,12 +11,21 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Slider } from "@/components/ui/slider"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Search, Filter, Grid3X3, List, Heart, Star } from "lucide-react"
-import { allProducts, filterCategories, brands, colors } from "@/data/site-data"
+import { fetchProducts } from "@/lib/data"
+import { brands, colors } from "@/data/site-data"
 
 
 interface ProductCatalogProps {
   category?: string
 }
+
+const CATEGORY_OPTIONS = [
+  { label: 'Botas Masculinas', value: 'botas-masculinas' },
+  { label: 'Botas Femininas', value: 'botas-femininas' },
+  { label: 'Botas Infantis', value: 'botas-infantis' },
+  { label: 'Chapéus', value: 'chapeus' },
+  { label: 'Bonés', value: 'bones' },
+];
 
 export function ProductCatalog({ category }: ProductCatalogProps) {
   const [searchTerm, setSearchTerm] = useState("")
@@ -27,9 +36,32 @@ export function ProductCatalog({ category }: ProductCatalogProps) {
   const [sortBy, setSortBy] = useState("relevance")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [showFilters, setShowFilters] = useState(false)
+  const [products, setProducts] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  // Buscar produtos do Firestore ao montar
+  useEffect(() => {
+    async function loadProducts() {
+      setLoading(true);
+      let data = [];
+      if (selectedCategory) {
+        // Busca filtrada por categoria
+        const { db } = await import("@/lib/firebase");
+        const { collection, getDocs, query, where } = await import("firebase/firestore");
+        const q = query(collection(db, "produtos"), where("category", "==", selectedCategory));
+        const snapshot = await getDocs(q);
+        data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      } else {
+        data = await fetchProducts();
+      }
+      setProducts(data);
+      setLoading(false);
+    }
+    loadProducts();
+  }, [selectedCategory])
 
   const filteredProducts = useMemo(() => {
-    const filtered = allProducts.filter((product) => {
+    const filtered = products.filter((product) => {
       const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase())
       const matchesCategory = !selectedCategory || product.category === selectedCategory
       const matchesBrand = selectedBrands.length === 0 || selectedBrands.includes(product.brand)
@@ -63,9 +95,9 @@ export function ProductCatalog({ category }: ProductCatalogProps) {
     }
 
     return filtered
-  }, [searchTerm, selectedCategory, selectedBrands, selectedColors, priceRange, sortBy])
+  }, [products, searchTerm, selectedCategory, selectedBrands, selectedColors, priceRange, sortBy])
 
-  const categoryName = filterCategories.find((cat) => cat.value === selectedCategory)?.label || "Todos os Produtos"
+  const categoryName = CATEGORY_OPTIONS.find((cat) => cat.value === selectedCategory)?.label || "Todos os Produtos"
 
   const FilterContent = () => (
     <div className="space-y-6">
@@ -79,7 +111,7 @@ export function ProductCatalog({ category }: ProductCatalogProps) {
               Todas
             </label>
           </div>
-          {filterCategories.map((cat) => (
+          {CATEGORY_OPTIONS.map((cat) => (
             <div key={cat.value} className="flex items-center space-x-2">
               <Checkbox
                 id={cat.value}
@@ -303,7 +335,11 @@ export function ProductCatalog({ category }: ProductCatalogProps) {
                       }`}
                     >
                       <img
-                        src={product.image || "/placeholder.svg"}
+                        src={
+                          Array.isArray(product.images) && product.images.length > 0
+                            ? product.images[0]
+                            : product.image || "/placeholder.svg"
+                        }
                         alt={product.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
