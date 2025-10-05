@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
+import { app as firebaseApp } from "@/lib/firebase";
 import { addProduct, fetchCategories, Category, ensureDefaultCategories } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,17 +13,9 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 
 export default function AddProductPage() {
-  const searchParams = useSearchParams();
-  const urlPassword = searchParams.get('senha');
-  const URL_REQUIRED_PASSWORD = "admin123";
-  if (urlPassword !== URL_REQUIRED_PASSWORD) {
-    return (
-      <div className="container mx-auto p-8 text-center text-red-600 text-xl font-bold">
-        Acesso negado. Adicione ?senha correta para acessar esta página.
-      </div>
-    );
-  }
-  const [password, setPassword] = useState("");
+  const [authChecked, setAuthChecked] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  // Removido campo de senha do formulário
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [originalPrice, setOriginalPrice] = useState('');
@@ -39,6 +34,29 @@ export default function AddProductPage() {
   const [loadingCategories, setLoadingCategories] = useState(true);
 
   useEffect(() => {
+    const auth = getAuth(firebaseApp);
+    const db = getFirestore(firebaseApp);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        setAuthChecked(true);
+        setIsAdmin(false);
+        return;
+      }
+      // Busca userType no Firestore
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists() && userSnap.data().userType === "adm") {
+        setIsAdmin(true);
+      } else {
+        setIsAdmin(false);
+      }
+      setAuthChecked(true);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!authChecked || !isAdmin) return;
     async function loadCategories() {
       setLoadingCategories(true);
       await ensureDefaultCategories(); // Garante categorias padrão
@@ -47,7 +65,22 @@ export default function AddProductPage() {
       setLoadingCategories(false);
     }
     loadCategories();
-  }, []);
+  }, [authChecked, isAdmin]);
+
+  if (!authChecked) {
+    return (
+      <div className="container mx-auto p-8 text-center text-xl font-bold">
+        Verificando permissão...
+      </div>
+    );
+  }
+  if (!isAdmin) {
+    return (
+      <div className="container mx-auto p-8 text-center text-red-600 text-xl font-bold">
+        Acesso restrito: apenas administradores podem acessar esta página.
+      </div>
+    );
+  }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -61,11 +94,7 @@ export default function AddProductPage() {
     setError(null);
     setSuccess(null);
 
-    // Validação de senha simples
-    if (password !== "admin123") {
-      setError("Senha incorreta para cadastrar produto.");
-      return;
-    }
+
 
     if (!name || !price || !category || imageFiles.length === 0) {
       setError("Nome, Preço, Categoria e pelo menos uma imagem são obrigatórios.");
@@ -126,7 +155,7 @@ export default function AddProductPage() {
   setColors('');
   setInStock(true);
   setBadge('');
-  setPassword("");
+ 
 
     } catch (err) {
       setError(err instanceof Error ? err.message : "Ocorreu um erro desconhecido.");
@@ -140,17 +169,7 @@ export default function AddProductPage() {
     <div className="container mx-auto p-4 sm:p-6 lg:p-8">
       <h1 className="text-2xl font-bold mb-6">Adicionar Novo Produto</h1>
       <form onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-4">
-        <div>
-          <Label htmlFor="password">Senha para cadastrar produto</Label>
-          <Input
-            id="password"
-            type="password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-            disabled={isUploading}
-          />
-        </div>
+
         <div>
           <Label htmlFor="name">Nome do Produto</Label>
           <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required disabled={isUploading} />

@@ -3,6 +3,8 @@
 import type React from "react"
 
 import { useState } from "react"
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth"
+import { app as firebaseApp } from "@/lib/firebase"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -30,20 +32,20 @@ export function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-
-    // Simulação de login
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-
-    // Em um app real, validaria as credenciais
-    if (formData.email && formData.password) {
-      // Simular login bem-sucedido
-      localStorage.setItem("user", JSON.stringify({ email: formData.email, name: "João Silva" }))
+    try {
+      if (!formData.email || !formData.password) {
+        alert("Por favor, preencha todos os campos")
+        setIsLoading(false)
+        return
+      }
+      const auth = getAuth(firebaseApp)
+      await signInWithEmailAndPassword(auth, formData.email, formData.password)
       router.push("/minha-conta")
-    } else {
-      alert("Por favor, preencha todos os campos")
+    } catch (err: any) {
+      alert("E-mail ou senha inválidos!")
+    } finally {
+      setIsLoading(false)
     }
-
-    setIsLoading(false)
   }
 
   return (

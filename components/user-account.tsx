@@ -1,6 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { getAuth, onAuthStateChanged } from "firebase/auth"
+import { app as firebaseApp } from "@/lib/firebase"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -91,12 +93,23 @@ export function UserAccount() {
   const [isEditing, setIsEditing] = useState(false)
   const [editData, setEditData] = useState(userData)
 
+  // Busca usuário autenticado do Firebase Auth
   useEffect(() => {
-    // Verificar se o usuário está logado
-    const storedUser = localStorage.getItem("user")
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
-    }
+    const auth = getAuth(firebaseApp)
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        // Você pode buscar mais dados do Firestore aqui se quiser
+        setUser({
+          name: firebaseUser.displayName || userData.name,
+          email: firebaseUser.email,
+          uid: firebaseUser.uid,
+          userType: "cliente", // ajuste se salvar tipo no Firestore
+        })
+      } else {
+        setUser(null)
+      }
+    })
+    return () => unsubscribe()
   }, [])
 
   const handleLogout = () => {
@@ -258,6 +271,70 @@ export function UserAccount() {
               </div>
             </CardContent>
           </Card>
+        {/* Configurações da Conta */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Configurações da Conta</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Trocar tipo de conta */}
+            <div className="space-y-2">
+              <Label htmlFor="userType">Tipo de Conta</Label>
+              <select
+                id="userType"
+                className="w-full border rounded px-3 py-2"
+                value={user?.userType || "cliente"}
+                onChange={async (e) => {
+                  const novoTipo = e.target.value;
+                  if (novoTipo === "adm" && user?.userType !== "adm") {
+                    const senha = window.prompt("Digite a senha de administrador:");
+                    if (senha !== "c4s409botina") {
+                      alert("Senha de administrador incorreta!");
+                      return;
+                    }
+                  }
+                  // Aqui você atualizaria o tipo de conta no backend/Firebase
+                  setUser({ ...user, userType: novoTipo });
+                  alert("Tipo de conta atualizado para " + novoTipo);
+                }}
+              >
+                <option value="cliente">Cliente</option>
+                <option value="adm">Administrador</option>
+              </select>
+              <p className="text-xs text-muted-foreground">Para se tornar administrador é necessário a senha.</p>
+            </div>
+
+            {/* Excluir conta */}
+            <div className="space-y-2">
+              <Label>Excluir Conta</Label>
+              <Button
+                variant="destructive"
+                className="w-full"
+                onClick={async () => {
+                  if (window.confirm("Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita.")) {
+                    try {
+                      const { getAuth, deleteUser } = await import("firebase/auth");
+                      const auth = getAuth();
+                      const user = auth.currentUser;
+                      if (user) {
+                        await deleteUser(user);
+                        alert("Conta excluída com sucesso.");
+                        window.location.href = "/";
+                      } else {
+                        alert("É necessário estar logado para excluir a conta.");
+                      }
+                    } catch (err: any) {
+                      alert("Erro ao excluir conta: " + (err.message || err.code));
+                    }
+                  }
+                }}
+              >
+                Excluir minha conta
+              </Button>
+              <p className="text-xs text-muted-foreground mt-2">Esta ação é irreversível. Disponível para clientes e administradores.</p>
+            </div>
+          </CardContent>
+        </Card>
         </TabsContent>
 
         {/* Pedidos */}

@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { AdminDropdown } from "@/components/admin-dropdown"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -27,7 +28,7 @@ export function Header() {
         </Link>
 
         {/* Navigation Desktop */}
-        <nav className="hidden md:flex items-center space-x-6">
+  <nav className="hidden md:flex items-center space-x-6">
           <DropdownMenu>
             <DropdownMenuTrigger className="font-medium  ">
               <Button variant="ghost" >
@@ -75,6 +76,7 @@ export function Header() {
               Contato
             </Button>
           </Link>
+          <AdminDropdown />
         </nav>
 
         {/* Search Bar */}

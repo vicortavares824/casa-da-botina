@@ -3,6 +3,9 @@
 import type React from "react"
 
 import { useState } from "react"
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth"
+import { getFirestore, doc, setDoc } from "firebase/firestore"
+import { app as firebaseApp } from "@/lib/firebase"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -23,6 +26,8 @@ export function RegisterForm() {
     confirmPassword: "",
     acceptTerms: false,
     newsletter: false,
+    userType: "cliente",
+    adminSecret: "",
   })
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -33,6 +38,7 @@ export function RegisterForm() {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
+  const [welcome, setWelcome] = useState("");
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
@@ -50,27 +56,46 @@ export function RegisterForm() {
       return
     }
 
-    // Simulação de cadastro
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-
-    // Em um app real, enviaria os dados para o servidor
-    if (formData.email && formData.password && formData.firstName && formData.lastName) {
-      // Simular cadastro bem-sucedido
-      localStorage.setItem(
-        "user",
-        JSON.stringify({ email: formData.email, name: `${formData.firstName} ${formData.lastName}` }),
-      )
-      router.push("/minha-conta")
-    } else {
-      alert("Por favor, preencha todos os campos obrigatórios")
+    if (formData.userType === "adm" && formData.adminSecret !== "c4s409botina") {
+      alert("Senha de administrador incorreta!")
+      setIsLoading(false)
+      return
     }
 
+    try {
+      const auth = getAuth(firebaseApp)
+      const db = getFirestore(firebaseApp)
+      // Cria usuário no Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password)
+      const user = userCredential.user
+      // Salva dados extras no Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        userType: formData.userType,
+        newsletter: formData.newsletter,
+        createdAt: new Date(),
+      })
+      setWelcome("Cadastro realizado com sucesso! Bem-vindo(a), " + formData.firstName + "!");
+      setTimeout(() => {
+        router.push("/");
+      }, 2000);
+    } catch (err: any) {
+      alert("Erro ao criar usuário: " + (err.message || err.code))
+    }
     setIsLoading(false)
   }
 
   return (
     <div className="container px-4 py-16">
       <div className="max-w-md mx-auto">
+        {welcome && (
+          <div className="mb-4 p-3 rounded bg-green-100 text-green-800 text-center font-semibold">
+            {welcome} Redirecionando para a página inicial...
+          </div>
+        )}
         {/* Header */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-4">
@@ -234,6 +259,32 @@ export function RegisterForm() {
                 </div>
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="userType">Tipo de Conta</Label>
+                <select
+                  id="userType"
+                  value={formData.userType}
+                  onChange={e => updateFormData("userType", e.target.value)}
+                  className="w-full border rounded px-3 py-2"
+                  required
+                >
+                  <option value="cliente">Cliente</option>
+                  <option value="adm">Administrador</option>
+                </select>
+              </div>
+              {formData.userType === "adm" && (
+                <div className="space-y-2">
+                  <Label htmlFor="adminSecret">Senha de Administrador</Label>
+                  <Input
+                    id="adminSecret"
+                    type="password"
+                    value={formData.adminSecret}
+                    onChange={e => updateFormData("adminSecret", e.target.value)}
+                    placeholder="Digite a senha de administrador"
+                    required
+                  />
+                </div>
+              )}
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Criando conta..." : "Criar Conta"}
               </Button>

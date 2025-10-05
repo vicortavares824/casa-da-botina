@@ -19,4 +19,4 @@ const db = getFirestore(app);
 // Initialize Analytics if it's supported
 const analytics = isSupported().then(yes => yes ? getAnalytics(app) : null);
 
-export { db, analytics };
+export { db, analytics, app };
